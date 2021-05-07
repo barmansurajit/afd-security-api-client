@@ -1,0 +1,45 @@
+spring:
+  profiles:
+    active: test
+  application:
+    name: afd-security-api-client
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://schneidercarexpdev.b2clogin.com/603beee2-a27c-4d5f-83ee-d3ac9214443d/v2.0/
+          jwk-set-uri: https://schneidercarexpdev.b2clogin.com/schneidercarexpdev.onmicrosoft.com/discovery/v2.0/keys?p=b2c_1a_signup_signin
+      client:
+        provider:
+          afd:
+            tokenUri: https://login.microsoftonline.com/603beee2-a27c-4d5f-83ee-d3ac9214443d/oauth2/token
+        registration:
+          afd:
+            clientId: e61e15ff-b4ef-4311-8e0e-f5f3cc082334
+            clientSecret: 4NI0N9NsNqOWEXjpW285FNfWA33ZAfXIkoneLf27MOc=
+            authorizationGrantType: client_credentials
+            scope:
+              - read
+
+server:
+  port: 8080
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+    instances:
+      main_service:
+        baseConfig: default
